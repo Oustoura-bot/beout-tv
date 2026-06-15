@@ -70,6 +70,14 @@ export default async function RootLayout({
       dir="rtl"
       className={`${cairo.variable} ${tajawal.variable}`}
     >
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-4339889480291409" />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4339889480291409"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body className="min-h-screen bg-ink-900 font-sans text-slate-100 antialiased">
         <Header settings={settings} />
         <main className="container-x py-6">{children}</main>
