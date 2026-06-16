@@ -46,7 +46,8 @@ export default function ArticlesTable({ articles }: { articles: Article[] }) {
           <li key={a.id} className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[1fr,120px,120px,100px,120px,140px] sm:items-center">
             <div className="flex items-center gap-3">
               <div className="relative h-12 w-16 overflow-hidden rounded-lg border border-ink-700">
-                <Image src={a.cover_image} alt={a.title} fill className="object-cover" sizes="64px" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.cover_image} alt={a.title} className="h-full w-full object-cover" />
               </div>
               <div>
                 <div className="font-bold text-white">{a.title}</div>

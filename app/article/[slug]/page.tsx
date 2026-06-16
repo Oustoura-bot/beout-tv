@@ -61,9 +61,6 @@ export default async function ArticlePage({ params }: Props) {
     .filter((a) => a.id !== article.id && a.category === article.category)
     .slice(0, 3);
 
-  // Split content into paragraphs safely (it’s stored as plain text / paragraphs)
-  const paragraphs = article.content.split(/\n\s*\n/).filter(Boolean);
-
   return (
     <article className="mx-auto max-w-4xl">
       <nav className="mb-4 text-sm text-slate-400">
@@ -85,13 +82,11 @@ export default async function ArticlePage({ params }: Props) {
       </header>
 
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-ink-700">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={article.cover_image}
           alt={article.title}
-          fill
-          priority
-          sizes="(max-width:1024px) 100vw, 800px"
-          className="object-cover"
+          className="h-full w-full object-cover"
         />
       </div>
 
@@ -101,11 +96,10 @@ export default async function ArticlePage({ params }: Props) {
         </p>
       )}
 
-      <div className="prose-ar mt-8 text-base leading-9 text-slate-200">
-        {paragraphs.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
-      </div>
+      <div 
+        className="prose-ar mt-8 text-base leading-9 text-slate-200 whitespace-pre-wrap"
+        dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br />') }}
+      />
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-ink-700 pt-6 text-sm text-slate-400">
         <span>الكاتب: <span className="text-slate-200">{article.author}</span></span>

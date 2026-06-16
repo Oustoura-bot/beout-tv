@@ -140,7 +140,7 @@ export default function ArticleForm(props: Props) {
         />
       </Field>
 
-      <Field label="المحتوى" required hint="افصل بين الفقرات بسطر فارغ">
+      <Field label="المحتوى" required hint="افصل بين الفقرات بسطر فارغ. يمكنك استخدام وسوم HTML مثل <img> للصور أو <a> للروابط.">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -149,6 +149,16 @@ export default function ArticleForm(props: Props) {
           className="input leading-8"
         />
       </Field>
+
+      {content && (
+        <div className="mt-4">
+          <span className="mb-2 block text-sm font-semibold text-slate-400">معاينة المحتوى:</span>
+          <div 
+            className="prose-ar rounded-xl border border-ink-700 bg-ink-900/50 p-4 text-base leading-9 text-slate-200 whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br />') }}
+          />
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="الكاتب">

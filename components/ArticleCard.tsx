@@ -16,13 +16,11 @@ export default function ArticleCard({
       className="group card flex h-full flex-col overflow-hidden transition hover:border-emerald-500/60 hover:shadow-glow"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-ink-700">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={article.cover_image}
           alt={article.title}
-          fill
-          priority={priority}
-          sizes="(max-width:768px) 100vw, (max-width:1280px) 50vw, 33vw"
-          className="object-cover transition duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink-950/80 to-transparent" />
         <span className="absolute right-3 top-3 chip">{article.category}</span>
