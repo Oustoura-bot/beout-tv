@@ -24,7 +24,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const article = await getArticleBySlug(decodedSlug);
   if (!article) return { title: "مقال غير موجود" };
   const description =
     article.excerpt ?? stripHtml(article.content).slice(0, 160);
@@ -51,7 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const article = await getArticleBySlug(decodedSlug);
   if (!article) notFound();
 
   // Track article views
