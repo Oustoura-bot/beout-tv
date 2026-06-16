@@ -58,12 +58,19 @@ export const metadata: Metadata = {
   },
 };
 
+import { incrementTotalVisits } from "@/app/api/admin/actions";
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const settings = await getSettings();
+  
+  // Track total visits (server-side on every layout load)
+  // This is a simple way to track hits.
+  incrementTotalVisits().catch(console.error);
+
   return (
     <html
       lang="ar"

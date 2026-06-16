@@ -33,16 +33,17 @@ export default function ArticlesTable({ articles }: { articles: Article[] }) {
 
   return (
     <div className="card overflow-hidden">
-      <div className="hidden grid-cols-[1fr,160px,140px,120px,140px] gap-3 border-b border-ink-700 bg-ink-800/80 px-4 py-3 text-xs font-semibold text-slate-300 sm:grid">
+      <div className="hidden grid-cols-[1fr,120px,120px,100px,120px,140px] gap-3 border-b border-ink-700 bg-ink-800/80 px-4 py-3 text-xs font-semibold text-slate-300 sm:grid">
         <div>العنوان</div>
         <div>التصنيف</div>
         <div>الكاتب</div>
+        <div>المشاهدات</div>
         <div>التاريخ</div>
         <div className="text-left">إجراءات</div>
       </div>
       <ul className="divide-y divide-ink-700">
         {items.map((a) => (
-          <li key={a.id} className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[1fr,160px,140px,120px,140px] sm:items-center">
+          <li key={a.id} className="grid grid-cols-1 gap-3 px-4 py-3 sm:grid-cols-[1fr,120px,120px,100px,120px,140px] sm:items-center">
             <div className="flex items-center gap-3">
               <div className="relative h-12 w-16 overflow-hidden rounded-lg border border-ink-700">
                 <Image src={a.cover_image} alt={a.title} fill className="object-cover" sizes="64px" />
@@ -56,6 +57,7 @@ export default function ArticlesTable({ articles }: { articles: Article[] }) {
             </div>
             <div className="text-sm text-slate-300"><span className="chip">{a.category}</span></div>
             <div className="text-sm text-slate-400">{a.author}</div>
+            <div className="text-sm font-mono text-emerald-400">{a.views.toLocaleString()}</div>
             <div className="text-sm text-slate-400">{formatDateAr(a.created_at)}</div>
             <div className="flex items-center justify-start gap-2 sm:justify-end">
               <Link href={`/admin/articles/${a.id}`} className="btn-ghost px-3 py-1.5 text-xs">تعديل</Link>

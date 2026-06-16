@@ -22,6 +22,7 @@ export type SiteSettings = {
   site_description: string;
   contact_email: string;
   banner_image: string | null;
+  total_visits: number;
   updated_at: string;
 };
 

@@ -34,9 +34,27 @@ export default async function ArticlesAdminPage() {
     };
   }
 
+  const totalVisits = data.reduce((acc, curr) => acc + (curr.views || 0), 0);
+
   return (
     <div>
       <AdminNav />
+      
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="card p-4">
+          <div className="text-sm text-slate-400">إجمالي زيارات المقالات</div>
+          <div className="mt-1 text-2xl font-bold text-emerald-400">{totalVisits.toLocaleString()}</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-sm text-slate-400">عدد المقالات</div>
+          <div className="mt-1 text-2xl font-bold text-white">{data.length}</div>
+        </div>
+        <div className="card p-4">
+          <div className="text-sm text-slate-400">حالة الموقع</div>
+          <div className="mt-1 text-2xl font-bold text-blue-400">نشط</div>
+        </div>
+      </div>
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold text-white">إدارة المقالات</h1>
         <a href="/admin/articles/new" className="btn-primary">

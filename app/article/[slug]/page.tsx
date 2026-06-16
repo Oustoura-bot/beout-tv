@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { getArticleBySlug, getAllArticleSlugs, getPublishedArticles } from "@/lib/data";
 import { formatDateAr, stripHtml } from "@/lib/utils";
 import ArticleCard from "@/components/ArticleCard";
+import { incrementArticleViews } from "@/app/api/admin/actions";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -52,6 +53,9 @@ export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) notFound();
+
+  // Track article views
+  incrementArticleViews(article.id).catch(console.error);
 
   const related = (await getPublishedArticles(6))
     .filter((a) => a.id !== article.id && a.category === article.category)

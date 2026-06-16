@@ -34,11 +34,12 @@ create table if not exists public.site_settings (
   download_link    text        default 'https://beout.app/download',
   site_description text        default 'آخر أخبار الرياضة العالمية والعربية لحظة بلحظة',
   contact_email    text        default 'contact@beout.app',
+  total_visits     integer     not null default 0,
   updated_at       timestamptz not null default now()
 );
 
 -- Single-row settings table: ensure exactly one row
-insert into public.site_settings (id, logo_url, app_name, app_code, download_link, site_description, contact_email)
+insert into public.site_settings (id, logo_url, app_name, app_code, download_link, site_description, contact_email, total_visits)
 values (
   '00000000-0000-0000-0000-000000000001',
   'https://ptaxgqvhzxkusedzlitb.supabase.co/storage/v1/object/public/assets/beout-logo.png',
@@ -46,7 +47,8 @@ values (
   'BE2024',
   'https://beout.app/download',
   'beout سبورتس — كل أخبار كرة القدم، الانتقالات، ودوريات أوروبا والعرب في مكان واحد.',
-  'contact@beout.app'
+  'contact@beout.app',
+  0
 )
 on conflict (id) do nothing;
 
