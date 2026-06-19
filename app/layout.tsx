@@ -18,10 +18,7 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://beout-tv.site"),
-  alternates: {
-    canonical: "/",
-  },
+  metadataBase: new URL("https://beout-tv.site"),
   title: {
     default: "beout سبورتس — آخر أخبار الرياضة العالمية والعربية",
     template: "%s | beout سبورتس",
