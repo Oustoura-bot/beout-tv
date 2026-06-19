@@ -60,8 +60,8 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
           <h3 className="mb-3 text-sm font-bold text-white">تواصل</h3>
           <ul className="space-y-2 text-sm text-slate-300">
             <li>
-              <a className="hover:text-emerald-400" href={`mailto:${settings?.contact_email ?? "contact@beout.app"}`}>
-                {settings?.contact_email ?? "contact@beout.app"}
+              <a className="hover:text-emerald-400" href={`mailto:${settings?.contact_email ?? "contact@beout-tv.site"}`}>
+                {settings?.contact_email ?? "contact@beout-tv.site"}
               </a>
             </li>
           </ul>

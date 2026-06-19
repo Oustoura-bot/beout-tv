@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const settings = await getSettings();
-  const email = settings?.contact_email ?? "contact@beout.app";
+  const email = settings?.contact_email ?? "contact@beout-tv.site";
 
   return (
     <article className="prose-ar mx-auto max-w-3xl text-slate-200">
