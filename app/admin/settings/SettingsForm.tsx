@@ -8,9 +8,9 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
   const [appName, setAppName] = useState(initial?.app_name ?? "beout");
   const [appCode, setAppCode] = useState(initial?.app_code ?? "BE2024");
-  const [downloadLink, setDownloadLink] = useState(initial?.download_link ?? "https://beout.app/download");
+  const [downloadLink, setDownloadLink] = useState(initial?.download_link ?? "https://beout-tv.site/download");
   const [siteDescription, setSiteDescription] = useState(initial?.site_description ?? "");
-  const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout.app");
+  const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout-tv.site");
   const [bannerImage, setBannerImage] = useState(initial?.banner_image ?? "");
 
   const [busy, setBusy] = useState(false);

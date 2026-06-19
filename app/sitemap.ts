@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllArticleSlugs, getCategories } from "@/lib/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://beout.app";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://beout-tv.site";
   const [slugs, cats] = await Promise.all([getAllArticleSlugs(), getCategories()]);
 
   const now = new Date();
