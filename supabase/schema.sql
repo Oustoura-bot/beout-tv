@@ -31,9 +31,9 @@ create table if not exists public.site_settings (
   logo_url         text,
   app_name         text        default 'beout',
   app_code         text        default 'BE2024',
-  download_link    text        default 'https://beout.app/download',
+  download_link    text        default 'https://beout-tv.site/download',
   site_description text        default 'آخر أخبار الرياضة العالمية والعربية لحظة بلحظة',
-  contact_email    text        default 'contact@beout.app',
+  contact_email    text        default 'contact@beout-tv.site',
   total_visits     integer     not null default 0,
   updated_at       timestamptz not null default now()
 );
@@ -45,9 +45,9 @@ values (
   'https://ptaxgqvhzxkusedzlitb.supabase.co/storage/v1/object/public/assets/beout-logo.png',
   'beout',
   'BE2024',
-  'https://beout.app/download',
+  'https://beout-tv.site/download',
   'beout سبورتس — كل أخبار كرة القدم، الانتقالات، ودوريات أوروبا والعرب في مكان واحد.',
-  'contact@beout.app',
+  'contact@beout-tv.site',
   0
 )
 on conflict (id) do nothing;
