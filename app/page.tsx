@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "beout سبورتس — آخر أخبار الرياضة",
   description:
     "آخر أخبار كرة القدم، الانتقالات، ودوريات أوروبا والعرب لحظة بلحظة.",
-  alternates: { canonical: "/" },
+  alternates: { canonical: "https://beout-tv.site" },
 };
 
 // In-feed promo insertion points
