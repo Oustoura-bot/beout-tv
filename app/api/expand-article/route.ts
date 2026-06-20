@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
 // إعداد عميل Supabase بصلاحيات الخدمة (Service Role) لتجاوز RLS
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,35 +32,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Skipped: Content already long" });
     }
 
-    // إرسال الطلب لـ Anthropic Claude
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // إرسال الطلب لـ Google Gemini
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY!,
-        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 4000,
-        messages: [
+        contents: [
           {
             role: "user",
-            content: `أنت محرر صحفي رياضي محترف. وسّع هذا المقال إلى 600-800 كلمة بالعربية.
-            حافظ على نفس الفكرة والأسلوب الرياضي.
-            أضف تفاصيل، تحليلات، وسياق رياضي منطقي.
-            لا تخترع أرقاماً أو إحصائيات غير موجودة في الأصل.
-            النتيجة: نص مقال فقط بدون عناوين أو تعليقات إضافية.
-            
-            العنوان: ${title}
-            المحتوى الأصلي: ${content}`,
+            parts: [
+              {
+                text: `أنت محرر صحفي رياضي محترف باللغة العربية. وسّع هذا المقال إلى 600-800 كلمة بأسلوب صحفي احترافي مع إضافة تفاصيل وتحليلات منطقية. لا تخترع أرقاماً. أرسل النص فقط بدون أي تعليقات.\nالعنوان: ${title}\nالمحتوى: ${content}`,
+              },
+            ],
           },
         ],
       }),
     });
 
     const aiData = await response.json();
-    const expandedContent = aiData.content[0].text;
+    const expandedContent = aiData.candidates[0].content.parts[0].text;
 
     if (!expandedContent) {
       throw new Error("AI failed to generate content");
