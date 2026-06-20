@@ -1,7 +1,5 @@
 import ArticleCard from "@/components/ArticleCard";
-import AppCodeCard from "@/components/AppCodeCard";
-import DownloadBanner from "@/components/DownloadBanner";
-import { getPublishedArticles, getSettings } from "@/lib/data";
+import { getPublishedArticles } from "@/lib/data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,15 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://beout-tv.site" },
 };
 
-// In-feed promo insertion points
-const APP_CODE_AFTER = 3; // 1-indexed — after the 3rd article
-const DOWNLOAD_AFTER = 6; // after the 6th article
-
 export default async function HomePage() {
-  const [articles, settings] = await Promise.all([
-    getPublishedArticles(),
-    getSettings(),
-  ]);
+  const articles = await getPublishedArticles();
 
   return (
     <div>
@@ -46,30 +37,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Grid + in-feed promos */}
+      {/* Grid - No promos in-feed to comply with AdSense requirements */}
       <section>
         {articles.length === 0 ? (
           <EmptyState />
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.map((article, idx) => {
-              const position = idx + 1; // 1-indexed
-              return (
-                <div key={article.id} className="contents">
-                  <ArticleCard article={article} priority={idx < 3} />
-
-                  {/* App Code card after 3rd article */}
-                  {position === APP_CODE_AFTER && (
-                    <AppCodeCard settings={settings} />
-                  )}
-
-                  {/* Download banner after 6th article */}
-                  {position === DOWNLOAD_AFTER && (
-                    <DownloadBanner settings={settings} />
-                  )}
-                </div>
-              );
-            })}
+            {articles.map((article, idx) => (
+              <ArticleCard key={article.id} article={article} priority={idx < 3} />
+            ))}
           </div>
         )}
       </section>
