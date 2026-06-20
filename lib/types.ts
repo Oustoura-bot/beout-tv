@@ -19,6 +19,8 @@ export type SiteSettings = {
   app_name: string;
   app_code: string;
   download_link: string;
+  android_link: string | null;
+  ios_link: string | null;
   site_description: string;
   contact_email: string;
   banner_image: string | null;

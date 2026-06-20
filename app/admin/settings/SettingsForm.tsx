@@ -9,6 +9,8 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
   const [appName, setAppName] = useState(initial?.app_name ?? "beout");
   const [appCode, setAppCode] = useState(initial?.app_code ?? "BE2024");
   const [downloadLink, setDownloadLink] = useState(initial?.download_link ?? "https://beout-tv.site/download");
+  const [androidLink, setAndroidLink] = useState(initial?.android_link ?? "");
+  const [iosLink, setIosLink] = useState(initial?.ios_link ?? "");
   const [siteDescription, setSiteDescription] = useState(initial?.site_description ?? "");
   const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout-tv.site");
   const [bannerImage, setBannerImage] = useState(initial?.banner_image ?? "");
@@ -25,6 +27,8 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
       app_name: appName,
       app_code: appCode,
       download_link: downloadLink,
+      android_link: androidLink,
+      ios_link: iosLink,
       site_description: siteDescription,
       contact_email: contactEmail,
       banner_image: bannerImage,
@@ -72,15 +76,28 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
         />
       </Field>
 
-      {bannerImage && (
-        <div className="rounded-xl border border-ink-700 bg-ink-900 p-4">
-          <div className="mb-2 text-xs text-slate-400">معاينة البانر:</div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bannerImage} alt="banner" className="w-full max-w-sm rounded-xl object-cover" style={{aspectRatio:"16/10"}} />
-        </div>
-      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="رابط تحميل الأندرويد">
+          <input
+            value={androidLink}
+            onChange={(e) => setAndroidLink(e.target.value)}
+            placeholder="https://..."
+            className="input"
+            dir="ltr"
+          />
+        </Field>
+        <Field label="رابط تحميل الآيفون">
+          <input
+            value={iosLink}
+            onChange={(e) => setIosLink(e.target.value)}
+            placeholder="https://..."
+            className="input"
+            dir="ltr"
+          />
+        </Field>
+      </div>
 
-      <Field label="رابط التحميل">
+      <Field label="رابط صفحة التحميل العامة">
         <input
           value={downloadLink}
           onChange={(e) => setDownloadLink(e.target.value)}

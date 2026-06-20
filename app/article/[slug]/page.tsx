@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getArticleBySlug, getAllArticleSlugs, getPublishedArticles } from "@/lib/data";
+import { getArticleBySlug, getAllArticleSlugs, getPublishedArticles, getSettings } from "@/lib/data";
 import { formatDateAr, stripHtml } from "@/lib/utils";
 import ArticleCard from "@/components/ArticleCard";
 import { incrementArticleViews } from "@/app/api/admin/actions";
@@ -53,7 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const article = await getArticleBySlug(decodedSlug);
+  const [article, settings] = await Promise.all([
+    getArticleBySlug(decodedSlug),
+    getSettings()
+  ]);
+
   if (!article) notFound();
 
   // Track article views
@@ -108,7 +112,7 @@ export default async function ArticlePage({ params }: Props) {
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <div className="text-center sm:text-right">
             <h3 className="text-xl font-bold text-white sm:text-2xl">
-              📱 تابع أخبار الرياضة لحظة بلحظة مع تطبيق beout-tv
+              📱 تابع أخبار الرياضة لحظة بلحظة مع تطبيق {settings?.app_name || "beout-tv"}
             </h3>
             <p className="mt-2 text-slate-400">
               احصل على آخر التحديثات والنتائج مباشرة على هاتفك
@@ -117,14 +121,14 @@ export default async function ArticlePage({ params }: Props) {
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs font-medium uppercase tracking-wider text-emerald-500">كود التطبيق</span>
             <div className="rounded-lg bg-ink-900 px-4 py-2 text-2xl font-black text-white ring-1 ring-emerald-500/50">
-              1000
+              {settings?.app_code || "1000"}
             </div>
           </div>
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link 
-            href="ANDROID_LINK" 
+            href={settings?.android_link || "#"} 
             target="_blank"
             className="flex items-center gap-3 rounded-xl bg-emerald-600 px-6 py-3 font-bold text-white transition hover:bg-emerald-500 hover:shadow-glow"
           >
@@ -134,7 +138,7 @@ export default async function ArticlePage({ params }: Props) {
             تحميل للأندرويد
           </Link>
           <Link 
-            href="IOS_LINK" 
+            href={settings?.ios_link || "#"} 
             target="_blank"
             className="flex items-center gap-3 rounded-xl bg-slate-700 px-6 py-3 font-bold text-white transition hover:bg-slate-600 hover:shadow-glow-sm"
           >
