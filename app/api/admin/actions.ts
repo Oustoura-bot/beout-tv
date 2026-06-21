@@ -168,11 +168,6 @@ export async function incrementArticleViews(id: string) {
   try {
     const supabase = createAdminClient();
     if (!supabase) return;
-    // We use a raw SQL approach or a simple update for now. 
-    // Supabase JS client doesn't have a direct 'increment' without RPC, 
-    // but we can fetch and update or use a simple RPC if defined.
-    // For simplicity, we'll do a select then update or use the .rpc() if the user adds it.
-    // Let's use a simple update with a fetch for now as it's the most compatible.
     const { data } = await supabase.from("articles").select("views").eq("id", id).single();
     if (data) {
       await supabase.from("articles").update({ views: (data.views || 0) + 1 }).eq("id", id);

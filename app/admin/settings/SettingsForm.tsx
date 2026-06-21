@@ -44,7 +44,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
         <Field label="اسم التطبيق">
           <input value={appName} onChange={(e) => setAppName(e.target.value)} className="input" />
         </Field>
-        <Field label="كود التطبيق">
+        <Field label="كود التطبيق / كلمة السر">
           <input value={appCode} onChange={(e) => setAppCode(e.target.value)} className="input" />
         </Field>
       </div>
@@ -68,7 +68,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
 
       <Field label="صورة البانر الرئيسي (URL)">
         <input
-          value={bannerImage}
+          value={bannerImage ?? ""}
           onChange={(e) => setBannerImage(e.target.value)}
           placeholder="https://..."
           className="input"
@@ -79,7 +79,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="رابط تحميل الأندرويد">
           <input
-            value={androidLink}
+            value={androidLink ?? ""}
             onChange={(e) => setAndroidLink(e.target.value)}
             placeholder="https://..."
             className="input"
@@ -88,7 +88,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
         </Field>
         <Field label="رابط تحميل الآيفون">
           <input
-            value={iosLink}
+            value={iosLink ?? ""}
             onChange={(e) => setIosLink(e.target.value)}
             placeholder="https://..."
             className="input"
