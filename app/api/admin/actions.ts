@@ -140,17 +140,14 @@ export async function updateSettingsAction(input: SettingsInput) {
     if (!supabase) {
       return { ok: false as const, error: "Failed to initialize admin client" };
     }
-    const id = "00000000-0000-0000-0000-000000000001";
 
-    const update: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(input)) {
-      if (v !== undefined) update[k] = v;
-    }
+    const rows = Object.entries(input)
+      .filter(([_, v]) => v !== undefined && v !== null)
+      .map(([k, v]) => ({ key: k, value: String(v) }));
 
     const { error } = await supabase
       .from("site_settings")
-      .update(update)
-      .eq("id", id);
+      .upsert(rows, { onConflict: 'key' });
 
     if (error) return { ok: false as const, error: error.message };
     revalidatePath("/");
@@ -181,11 +178,18 @@ export async function incrementTotalVisits() {
   try {
     const supabase = createAdminClient();
     if (!supabase) return;
-    const id = "00000000-0000-0000-0000-000000000001";
-    const { data } = await supabase.from("site_settings").select("total_visits").eq("id", id).single();
-    if (data) {
-      await supabase.from("site_settings").update({ total_visits: (data.total_visits || 0) + 1 }).eq("id", id);
-    }
+    
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "total_visits")
+      .maybeSingle();
+
+    const count = data ? parseInt(data.value || "0") : 0;
+    
+    await supabase
+      .from("site_settings")
+      .upsert({ key: "total_visits", value: String(count + 1) }, { onConflict: 'key' });
   } catch (err) {
     console.error("incrementTotalVisits error:", err);
   }
