@@ -11,20 +11,15 @@ export async function getSettings(): Promise<SiteSettings | null> {
   if (!supabase) return null;
   const { data, error } = await supabase
     .from("site_settings")
-    .select("key, value");
+    .select("*")
+    .eq("id", "00000000-0000-0000-0000-000000000001")
+    .maybeSingle();
+    
   if (error) {
     console.error("getSettings error:", error.message);
     return null;
   }
-  if (!data || data.length === 0) return null;
-  const settings = (data as { key: string; value: string }[]).reduce(
-    (acc, row) => {
-      acc[row.key] = row.value;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
-  return settings as unknown as SiteSettings;
+  return (data as SiteSettings) ?? null;
 }
 
 export async function getPublishedArticles(limit?: number): Promise<Article[]> {

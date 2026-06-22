@@ -139,12 +139,29 @@ export async function updateSettingsAction(input: SettingsInput) {
     const supabase = createAdminClient();
     if (!supabase) return { ok: false as const, error: "Failed to initialize admin client" };
 
-    for (const [k, v] of Object.entries(input)) {
-      if (v === undefined || v === null) continue;
-      await supabase.rpc('upsert_setting', { p_key: k, p_value: String(v) });
+    // Update the single row in site_settings table
+    // The ID '00000000-0000-0000-0000-000000000001' is seeded in schema.sql
+    const { error } = await supabase
+      .from("site_settings")
+      .update({
+        logo_url: input.logo_url,
+        app_name: input.app_name,
+        app_code: input.app_code,
+        download_link: input.download_link,
+        android_link: input.android_link,
+        ios_link: input.ios_link,
+        site_description: input.site_description,
+        contact_email: input.contact_email,
+        banner_image: input.banner_image,
+      })
+      .eq("id", "00000000-0000-0000-0000-000000000001");
+
+    if (error) {
+      console.error("updateSettingsAction error:", error.message);
+      return { ok: false as const, error: error.message };
     }
 
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     revalidatePath("/admin/settings");
     return { ok: true as const };
   } catch (err) {
