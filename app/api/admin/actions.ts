@@ -137,19 +137,13 @@ export async function updateSettingsAction(input: SettingsInput) {
   try {
     await assertAdmin();
     const supabase = createAdminClient();
-    if (!supabase) {
-      return { ok: false as const, error: "Failed to initialize admin client" };
+    if (!supabase) return { ok: false as const, error: "Failed to initialize admin client" };
+
+    for (const [k, v] of Object.entries(input)) {
+      if (v === undefined || v === null) continue;
+      await supabase.rpc('upsert_setting', { p_key: k, p_value: String(v) });
     }
 
-    const rows = Object.entries(input)
-      .filter(([_, v]) => v !== undefined && v !== null)
-      .map(([k, v]) => ({ key: k, value: String(v) }));
-
-    const { error } = await supabase
-      .from("site_settings")
-      .upsert(rows, { onConflict: 'key' });
-
-    if (error) return { ok: false as const, error: error.message };
     revalidatePath("/");
     revalidatePath("/admin/settings");
     return { ok: true as const };
