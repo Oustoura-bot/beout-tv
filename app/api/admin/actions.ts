@@ -141,19 +141,19 @@ export async function updateSettingsAction(input: SettingsInput) {
 
     // Update the single row in site_settings table
     // The ID '00000000-0000-0000-0000-000000000001' is seeded in schema.sql
+    // Filter out undefined values to only update provided fields
+    const updateData: any = {};
+    if (input.logo_url !== undefined) updateData.logo_url = input.logo_url;
+    if (input.app_name !== undefined) updateData.app_name = input.app_name;
+    if (input.app_code !== undefined) updateData.app_code = input.app_code;
+    if (input.download_link !== undefined) updateData.download_link = input.download_link;
+    if (input.site_description !== undefined) updateData.site_description = input.site_description;
+    if (input.contact_email !== undefined) updateData.contact_email = input.contact_email;
+    if (input.banner_image !== undefined) updateData.banner_image = input.banner_image;
+
     const { error } = await supabase
       .from("site_settings")
-      .update({
-        logo_url: input.logo_url,
-        app_name: input.app_name,
-        app_code: input.app_code,
-        download_link: input.download_link,
-        android_link: input.android_link,
-        ios_link: input.ios_link,
-        site_description: input.site_description,
-        contact_email: input.contact_email,
-        banner_image: input.banner_image,
-      })
+      .update(updateData)
       .eq("id", "00000000-0000-0000-0000-000000000001");
 
     if (error) {

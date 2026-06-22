@@ -9,8 +9,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
   const [appName, setAppName] = useState(initial?.app_name ?? "beout");
   const [appCode, setAppCode] = useState(initial?.app_code ?? "BE2024");
   const [downloadLink, setDownloadLink] = useState(initial?.download_link ?? "https://beout-tv.site/download");
-  const [androidLink, setAndroidLink] = useState(initial?.android_link ?? "");
-  const [iosLink, setIosLink] = useState(initial?.ios_link ?? "");
+
   const [siteDescription, setSiteDescription] = useState(initial?.site_description ?? "");
   const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout-tv.site");
   const [bannerImage, setBannerImage] = useState(initial?.banner_image ?? "");
@@ -22,13 +21,11 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-    const res = await updateSettingsAction({
+      const res = await updateSettingsAction({
       logo_url: logoUrl,
       app_name: appName,
       app_code: appCode,
       download_link: downloadLink,
-      android_link: androidLink,
-      ios_link: iosLink,
       site_description: siteDescription,
       contact_email: contactEmail,
       banner_image: bannerImage,
@@ -76,26 +73,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="رابط تحميل الأندرويد">
-          <input
-            value={androidLink ?? ""}
-            onChange={(e) => setAndroidLink(e.target.value)}
-            placeholder="https://..."
-            className="input"
-            dir="ltr"
-          />
-        </Field>
-        <Field label="رابط تحميل الآيفون">
-          <input
-            value={iosLink ?? ""}
-            onChange={(e) => setIosLink(e.target.value)}
-            placeholder="https://..."
-            className="input"
-            dir="ltr"
-          />
-        </Field>
-      </div>
+
 
       <Field label="رابط صفحة التحميل العامة">
         <input
