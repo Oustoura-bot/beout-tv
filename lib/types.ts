@@ -13,20 +13,21 @@ export type Article = {
   updated_at: string;
 };
 
-export type SiteSettings = {
-  id: string;
-  logo_url: string | null;
-  app_name: string;
-  app_code: string;
-  download_link: string;
-  android_link: string | null;
-  ios_link: string | null;
-  site_description: string;
-  contact_email: string;
-  banner_image: string | null;
-  total_visits: number;
-  updated_at: string;
-};
+export interface SiteSettings {
+  logo_url?: string;
+  app_name?: string;
+  app_code?: string;
+  download_link?: string;
+  android_link?: string;
+  ios_link?: string;
+  site_description?: string;
+  contact_email?: string;
+  banner_image?: string;
+  total_visits?: string;
+  [key: string]: string | undefined;
+}
+
+export type SettingsInput = Partial<SiteSettings>;
 
 export type ArticleInput = {
   title: string;
@@ -38,5 +39,3 @@ export type ArticleInput = {
   author?: string;
   is_published?: boolean;
 };
-
-export type SettingsInput = Partial<Omit<SiteSettings, "id" | "updated_at">>;
