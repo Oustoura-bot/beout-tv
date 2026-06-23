@@ -11,9 +11,12 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   try {
     const cats = await getCategories();
-    return cats.map((c) => ({ category: encodeURIComponent(c) }));
-  } catch {
-    // Build-time env vars not available; pages generated on-demand at runtime.
+    if (!cats || cats.length === 0) return [];
+    return cats.map((c) => ({
+      category: encodeURIComponent(String(c)),
+    }));
+  } catch (error) {
+    console.error("Error generating category static params:", error);
     return [];
   }
 }

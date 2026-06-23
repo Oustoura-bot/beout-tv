@@ -14,8 +14,14 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   try {
     const slugs = await getAllArticleSlugs();
-    return slugs.map((slug) => ({ slug }));
-  } catch {
+    if (!slugs || slugs.length === 0) {
+      return [];
+    }
+    return slugs.map((slug) => ({
+      slug: String(slug),
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
     return [];
   }
 }
