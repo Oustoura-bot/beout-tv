@@ -7,8 +7,6 @@ import { updateSettingsAction } from "@/app/api/admin/actions";
 export default function SettingsForm({ initial }: { initial: SiteSettings | null }) {
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
   const [appName, setAppName] = useState(initial?.app_name ?? "beout");
-
-
   const [siteDescription, setSiteDescription] = useState(initial?.site_description ?? "");
   const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout-tv.site");
   const [bannerImage, setBannerImage] = useState(initial?.banner_image ?? "");
@@ -20,12 +18,12 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
     e.preventDefault();
     setBusy(true);
     setMsg(null);
-      const res = await updateSettingsAction({
-      logo_url: logoUrl,
-      app_name: appName,
-      site_description: siteDescription,
-      contact_email: contactEmail,
-      banner_image: bannerImage,
+    const res = await updateSettingsAction({
+      logo_url: logoUrl || null,
+      app_name: appName || null,
+      site_description: siteDescription || null,
+      contact_email: contactEmail || null,
+      banner_image: bannerImage || null,
     });
     setBusy(false);
     if (!res.ok) setMsg({ type: "err", text: res.error });
@@ -36,16 +34,16 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
     <form onSubmit={onSubmit} className="card grid gap-4 p-5 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="اسم الموقع">
-          <input value={appName} onChange={(e) => setAppName(e.target.value)} className="input" />
+          <input value={appName} onChange={(e) => setAppName(e.target.value)} className="input-field" />
         </Field>
       </div>
 
       <Field label="رابط الشعار (URL)">
         <input
-          value={logoUrl ?? ""}
+          value={logoUrl}
           onChange={(e) => setLogoUrl(e.target.value)}
           placeholder="https://..."
-          className="input"
+          className="input-field"
         />
       </Field>
 
@@ -59,24 +57,20 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
 
       <Field label="صورة البانر الرئيسي (URL)">
         <input
-          value={bannerImage ?? ""}
+          value={bannerImage}
           onChange={(e) => setBannerImage(e.target.value)}
           placeholder="https://..."
-          className="input"
+          className="input-field"
           dir="ltr"
         />
       </Field>
-
-
-
-
 
       <Field label="وصف الموقع (لـ SEO)">
         <textarea
           value={siteDescription}
           onChange={(e) => setSiteDescription(e.target.value)}
           rows={3}
-          className="input"
+          className="input-field"
         />
       </Field>
 
@@ -84,7 +78,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
         <input
           value={contactEmail}
           onChange={(e) => setContactEmail(e.target.value)}
-          className="input"
+          className="input-field"
           dir="ltr"
         />
       </Field>
@@ -109,7 +103,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
       </div>
 
       <style jsx>{`
-        .input {
+        .input-field {
           width: 100%;
           border-radius: 0.75rem;
           border: 1px solid #334155;
@@ -119,7 +113,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
           font-size: 0.95rem;
           outline: none;
         }
-        .input:focus {
+        .input-field:focus {
           border-color: #10B981;
           box-shadow: 0 0 0 2px rgba(16,185,129,0.15);
         }
