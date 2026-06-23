@@ -16,7 +16,7 @@ export type Article = {
 };
 
 export interface SiteSettings {
-  id: string;
+  id?: string;
   logo_url: string | null;
   app_name: string | null;
   app_code: string | null;

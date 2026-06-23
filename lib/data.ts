@@ -11,7 +11,7 @@ export async function getSettings(): Promise<SiteSettings | null> {
   const { data, error } = await supabase
     .from("site_settings")
     .select("*")
-    .eq("id", "00000000-0000-0000-0000-000000000001")
+    .limit(1)
     .maybeSingle();
     
   if (error) {

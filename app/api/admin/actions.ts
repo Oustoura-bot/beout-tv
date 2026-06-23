@@ -157,7 +157,8 @@ export async function updateSettingsAction(input: SettingsInput) {
     const { error } = await supabase
       .from("site_settings")
       .update(input)
-      .eq("id", "00000000-0000-0000-0000-000000000001");
+      .neq("updated_at", "1970-01-01") // dummy condition to allow update without id
+      .limit(1);
 
     if (error) {
       console.error("updateSettingsAction error:", error.message);
@@ -194,14 +195,15 @@ export async function incrementTotalVisits() {
     const { data } = await supabase
       .from("site_settings")
       .select("total_visits")
-      .eq("id", "00000000-0000-0000-0000-000000000001")
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (data) {
       await supabase
         .from("site_settings")
         .update({ total_visits: (data.total_visits || 0) + 1 })
-        .eq("id", "00000000-0000-0000-0000-000000000001");
+        .neq("updated_at", "1970-01-01")
+        .limit(1);
     }
   } catch (err) {
     console.error("incrementTotalVisits error:", err);
