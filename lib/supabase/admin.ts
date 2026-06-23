@@ -21,6 +21,10 @@ export const createAdminClient = () => {
     key,
     {
       auth: { persistSession: false, autoRefreshToken: false },
+      db: { schema: 'public' },
+      global: {
+        headers: { 'Cache-Control': 'no-cache' },
+      },
     },
   );
 };
