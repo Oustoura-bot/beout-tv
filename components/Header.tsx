@@ -17,7 +17,7 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={logo}
-              alt={appName}
+              alt={appName || "logo"}
               className="h-9 w-9 rounded-lg bg-ink-800 object-contain p-1"
             />
           ) : (
@@ -41,7 +41,6 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
           <Link href="/contact" className="rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-ink-800">
             اتصل بنا
           </Link>
-
         </nav>
 
         <button
@@ -55,6 +54,7 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </button>
@@ -72,7 +72,6 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
             <Link href="/contact" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 hover:bg-ink-800">
               اتصل بنا
             </Link>
-
           </div>
         </div>
       )}

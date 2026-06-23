@@ -12,7 +12,7 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={settings.logo_url}
-                alt={settings.app_name}
+                alt={settings.app_name || "logo"}
                 className="h-8 w-8 rounded-lg bg-ink-800 object-contain p-1"
               />
             ) : (
@@ -36,7 +36,6 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
             <li><Link className="hover:text-emerald-400" href="/">الرئيسية</Link></li>
             <li><Link className="hover:text-emerald-400" href="/about">من نحن</Link></li>
             <li><Link className="hover:text-emerald-400" href="/contact">اتصل بنا</Link></li>
-
           </ul>
         </div>
 
