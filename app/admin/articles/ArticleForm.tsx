@@ -36,6 +36,8 @@ export default function ArticleForm(props: Props) {
   const [coverImage, setCoverImage] = useState(a?.cover_image ?? "");
   const [author, setAuthor] = useState(a?.author ?? "فريق تحرير بي آوت سبورتس");
   const [isPublished, setIsPublished] = useState<boolean>(a?.is_published ?? true);
+  const [downloadUrl, setDownloadUrl] = useState(a?.download_url ?? "");
+  const [downloadCode, setDownloadCode] = useState(a?.download_code ?? "");
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,8 @@ export default function ArticleForm(props: Props) {
       cover_image: coverImage.trim(),
       author: author.trim(),
       is_published: isPublished,
+      download_url: downloadUrl.trim(),
+      download_code: downloadCode.trim(),
     };
 
     setBusy(true);
@@ -178,6 +182,25 @@ export default function ArticleForm(props: Props) {
             />
             منشور (يظهر في الموقع)
           </label>
+        </Field>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 border-t border-ink-700 pt-4">
+        <Field label="رابط التحميل (Download URL)" hint="اتركه فارغاً لإخفاء بلوك التحميل في نهاية المقال">
+          <input
+            value={downloadUrl}
+            onChange={(e) => setDownloadUrl(e.target.value)}
+            placeholder="https://example.com/download"
+            className="input"
+          />
+        </Field>
+        <Field label="كود التحميل / كلمة السر" hint="يظهر بجانب رابط التحميل">
+          <input
+            value={downloadCode}
+            onChange={(e) => setDownloadCode(e.target.value)}
+            placeholder="1234"
+            className="input"
+          />
         </Field>
       </div>
 

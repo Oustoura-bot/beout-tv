@@ -18,6 +18,8 @@ create table if not exists public.articles (
   author        text        default 'فريق تحرير بي آوت سبورتس',
   is_published  boolean     not null default true,
   views         integer     not null default 0,
+  download_url  text,
+  download_code text,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );

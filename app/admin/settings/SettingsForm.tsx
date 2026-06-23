@@ -7,8 +7,7 @@ import { updateSettingsAction } from "@/app/api/admin/actions";
 export default function SettingsForm({ initial }: { initial: SiteSettings | null }) {
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
   const [appName, setAppName] = useState(initial?.app_name ?? "beout");
-  const [appCode, setAppCode] = useState(initial?.app_code ?? "BE2024");
-  const [downloadLink, setDownloadLink] = useState(initial?.download_link ?? "https://beout-tv.site/download");
+
 
   const [siteDescription, setSiteDescription] = useState(initial?.site_description ?? "");
   const [contactEmail, setContactEmail] = useState(initial?.contact_email ?? "contact@beout-tv.site");
@@ -24,8 +23,6 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
       const res = await updateSettingsAction({
       logo_url: logoUrl,
       app_name: appName,
-      app_code: appCode,
-      download_link: downloadLink,
       site_description: siteDescription,
       contact_email: contactEmail,
       banner_image: bannerImage,
@@ -38,11 +35,8 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
   return (
     <form onSubmit={onSubmit} className="card grid gap-4 p-5 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="اسم التطبيق">
+        <Field label="اسم الموقع">
           <input value={appName} onChange={(e) => setAppName(e.target.value)} className="input" />
-        </Field>
-        <Field label="كود التطبيق / كلمة السر">
-          <input value={appCode} onChange={(e) => setAppCode(e.target.value)} className="input" />
         </Field>
       </div>
 
@@ -75,14 +69,7 @@ export default function SettingsForm({ initial }: { initial: SiteSettings | null
 
 
 
-      <Field label="رابط صفحة التحميل العامة">
-        <input
-          value={downloadLink}
-          onChange={(e) => setDownloadLink(e.target.value)}
-          className="input"
-          dir="ltr"
-        />
-      </Field>
+
 
       <Field label="وصف الموقع (لـ SEO)">
         <textarea

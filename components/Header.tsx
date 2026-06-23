@@ -41,12 +41,7 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
           <Link href="/contact" className="rounded-lg px-3 py-2 text-sm text-slate-200 hover:bg-ink-800">
             اتصل بنا
           </Link>
-          <Link
-            href={settings?.download_link || "#"}
-            className="btn-primary ms-2 px-3 py-2 text-sm"
-          >
-            حمّل التطبيق
-          </Link>
+
         </nav>
 
         <button
@@ -77,13 +72,7 @@ export default function Header({ settings }: { settings: SiteSettings | null }) 
             <Link href="/contact" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 hover:bg-ink-800">
               اتصل بنا
             </Link>
-            <Link
-              href={settings?.download_link || "#"}
-              onClick={() => setOpen(false)}
-              className="btn-primary mt-1 px-3 py-2 text-sm"
-            >
-              حمّل التطبيق
-            </Link>
+
           </div>
         </div>
       )}

@@ -9,6 +9,8 @@ export type Article = {
   author: string | null;
   is_published: boolean;
   views: number;
+  download_url?: string | null;
+  download_code?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -38,4 +40,6 @@ export type ArticleInput = {
   cover_image: string;
   author?: string;
   is_published?: boolean;
+  download_url?: string;
+  download_code?: string;
 };

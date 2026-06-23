@@ -36,14 +36,7 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
             <li><Link className="hover:text-emerald-400" href="/">الرئيسية</Link></li>
             <li><Link className="hover:text-emerald-400" href="/about">من نحن</Link></li>
             <li><Link className="hover:text-emerald-400" href="/contact">اتصل بنا</Link></li>
-            <li>
-              <Link
-                className="hover:text-emerald-400"
-                href={settings?.download_link || "#"}
-              >
-                حمّل التطبيق
-              </Link>
-            </li>
+
           </ul>
         </div>
 

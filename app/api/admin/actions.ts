@@ -62,6 +62,8 @@ export async function createArticleAction(input: ArticleInput) {
           cover_image: input.cover_image.trim(),
           author: input.author?.trim() || "فريق تحرير بي آ اوت سبورتس",
           is_published: input.is_published ?? true,
+          download_url: input.download_url?.trim() || null,
+          download_code: input.download_code?.trim() || null,
         },
       ])
       .select("id")
@@ -100,6 +102,8 @@ export async function updateArticleAction(id: string, input: ArticleInput) {
         cover_image: input.cover_image.trim(),
         author: input.author?.trim() || "فريق تحرير بي آ اوت سبورتس",
         is_published: input.is_published ?? true,
+        download_url: input.download_url?.trim() || null,
+        download_code: input.download_code?.trim() || null,
       })
       .eq("id", id);
 
