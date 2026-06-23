@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import type { Article } from "@/lib/types";
 import { deleteArticleAction } from "@/app/api/admin/actions";
@@ -9,9 +8,9 @@ import { formatDateAr } from "@/lib/utils";
 
 export default function ArticlesTable({ articles }: { articles: Article[] }) {
   const [items, setItems] = useState(articles);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | number | null>(null);
 
-  async function onDelete(id: string) {
+  async function onDelete(id: string | number) {
     if (!confirm("هل أنت متأكد من حذف هذا المقال؟")) return;
     setBusy(id);
     const res = await deleteArticleAction(id);
@@ -58,7 +57,7 @@ export default function ArticlesTable({ articles }: { articles: Article[] }) {
             </div>
             <div className="text-sm text-slate-300"><span className="chip">{a.category}</span></div>
             <div className="text-sm text-slate-400">{a.author}</div>
-            <div className="text-sm font-mono text-emerald-400">{a.views.toLocaleString()}</div>
+            <div className="text-sm font-mono text-emerald-400">{(a.views || 0).toLocaleString()}</div>
             <div className="text-sm text-slate-400">{formatDateAr(a.created_at)}</div>
             <div className="flex items-center justify-start gap-2 sm:justify-end">
               <Link href={`/admin/articles/${a.id}`} className="btn-ghost px-3 py-1.5 text-xs">تعديل</Link>
