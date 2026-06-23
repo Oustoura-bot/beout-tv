@@ -1,5 +1,5 @@
 export type Article = {
-  id: string;
+  id: string | number;
   title: string;
   slug: string;
   excerpt: string | null;
@@ -9,31 +9,32 @@ export type Article = {
   author: string | null;
   is_published: boolean;
   views: number;
-  download_url?: string | null;
-  download_code?: string | null;
+  download_url: string | null;
+  download_code: string | null;
   created_at: string;
   updated_at: string;
 };
 
 export interface SiteSettings {
-  logo_url?: string;
-  app_name?: string;
-  app_code?: string;
-  download_link?: string;
-  android_link?: string;
-  ios_link?: string;
-  site_description?: string;
-  contact_email?: string;
-  banner_image?: string;
-  total_visits?: string;
-  [key: string]: string | undefined;
+  id: string;
+  logo_url: string | null;
+  app_name: string | null;
+  app_code: string | null;
+  download_link: string | null;
+  android_link: string | null;
+  ios_link: string | null;
+  site_description: string | null;
+  contact_email: string | null;
+  banner_image: string | null;
+  total_visits: number;
+  updated_at: string;
 }
 
-export type SettingsInput = Partial<SiteSettings>;
+export type SettingsInput = Partial<Omit<SiteSettings, "id" | "updated_at">>;
 
 export type ArticleInput = {
   title: string;
-  slug: string;
+  slug?: string;
   excerpt?: string;
   content: string;
   category: string;

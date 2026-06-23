@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Article, ArticleInput } from "@/lib/types";
 import { createArticleAction, updateArticleAction } from "@/app/api/admin/actions";
-import { slugify } from "@/lib/utils";
 
 type Props =
   | { mode: "create" }
@@ -35,7 +34,7 @@ export default function ArticleForm(props: Props) {
   const [category, setCategory] = useState(a?.category ?? "عام");
   const [coverImage, setCoverImage] = useState(a?.cover_image ?? "");
   const [author, setAuthor] = useState(a?.author ?? "فريق تحرير بي آوت سبورتس");
-  const [isPublished, setIsPublished] = useState<boolean>(a?.is_published ?? true);
+  const [isPublished, setIsPublished] = useState(a?.is_published ?? true);
   const [downloadUrl, setDownloadUrl] = useState(a?.download_url ?? "");
   const [downloadCode, setDownloadCode] = useState(a?.download_code ?? "");
 
@@ -53,15 +52,15 @@ export default function ArticleForm(props: Props) {
 
     const input: ArticleInput = {
       title: title.trim(),
-      slug: slug.trim(),
-      excerpt: excerpt.trim(),
+      slug: slug.trim() || undefined,
+      excerpt: excerpt.trim() || undefined,
       content: content.trim(),
       category: category.trim() || "عام",
       cover_image: coverImage.trim(),
-      author: author.trim(),
+      author: author.trim() || undefined,
       is_published: isPublished,
-      download_url: downloadUrl.trim(),
-      download_code: downloadCode.trim(),
+      download_url: downloadUrl.trim() || undefined,
+      download_code: downloadCode.trim() || undefined,
     };
 
     setBusy(true);
@@ -78,10 +77,6 @@ export default function ArticleForm(props: Props) {
     router.refresh();
   }
 
-  function autoSlug() {
-    if (!slug) setSlug(slugify(title));
-  }
-
   return (
     <form onSubmit={onSubmit} className="card grid gap-4 p-5 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -89,33 +84,50 @@ export default function ArticleForm(props: Props) {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            onBlur={autoSlug}
             required
-            className="input"
+            className="input-field"
           />
         </Field>
-        <Field label="المعرّف (slug) — اتركه فارغًا للتوليد التلقائي">
+        <Field label="الرابط الفرعي (Slug)" hint="اتركه فارغاً للتوليد التلقائي">
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            placeholder="my-article-slug"
-            className="input"
+            placeholder="example-article-title"
+            className="input-field"
           />
         </Field>
       </div>
 
-      <Field label="التصنيف">
-        <div className="flex gap-2">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="التصنيف">
+          <div className="flex gap-2">
+            <input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              list="cat-list"
+              className="input-field"
+            />
+            <datalist id="cat-list">
+              {DEFAULT_CATEGORIES.map((c) => <option key={c} value={c} />)}
+            </datalist>
+          </div>
+        </Field>
+        <Field label="الكاتب">
           <input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            list="cat-list"
-            className="input"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="input-field"
           />
-          <datalist id="cat-list">
-            {DEFAULT_CATEGORIES.map((c) => <option key={c} value={c} />)}
-          </datalist>
-        </div>
+        </Field>
+      </div>
+
+      <Field label="مقتطف (Excerpt)" hint="وصف قصير يظهر في القائمة">
+        <textarea
+          value={excerpt}
+          onChange={(e) => setExcerpt(e.target.value)}
+          rows={2}
+          className="input-field"
+        />
       </Field>
 
       <Field label="رابط صورة الغلاف (URL)" required hint="يمكنك استخدام روابط Unsplash أو أي CDN يدعم HTTPS">
@@ -124,7 +136,7 @@ export default function ArticleForm(props: Props) {
           onChange={(e) => setCoverImage(e.target.value)}
           required
           placeholder="https://images.unsplash.com/photo-..."
-          className="input"
+          className="input-field"
         />
       </Field>
 
@@ -135,54 +147,27 @@ export default function ArticleForm(props: Props) {
         </div>
       )}
 
-      <Field label="المقتطف (excerpt)">
-        <textarea
-          value={excerpt ?? ""}
-          onChange={(e) => setExcerpt(e.target.value)}
-          rows={2}
-          className="input"
-        />
-      </Field>
-
       <Field label="المحتوى" required hint="افصل بين الفقرات بسطر فارغ. يمكنك استخدام وسوم HTML مثل <img> للصور أو <a> للروابط.">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={12}
           required
-          className="input leading-8"
+          className="input-field leading-8"
         />
       </Field>
 
-      {content && (
-        <div className="mt-4">
-          <span className="mb-2 block text-sm font-semibold text-slate-400">معاينة المحتوى:</span>
-          <div 
-            className="prose-ar rounded-xl border border-ink-700 bg-ink-900/50 p-4 text-base leading-9 text-slate-200 whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br />') }}
-          />
-        </div>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="الكاتب">
-          <input
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="input"
-          />
-        </Field>
-        <Field label="الحالة">
-          <label className="flex items-center gap-2 text-sm text-slate-200">
-            <input
-              type="checkbox"
-              checked={isPublished}
-              onChange={(e) => setIsPublished(e.target.checked)}
-              className="h-4 w-4 accent-emerald-500"
-            />
-            منشور (يظهر في الموقع)
-          </label>
-        </Field>
+      <div className="flex items-center gap-2 py-2">
+        <input
+          type="checkbox"
+          id="is_published"
+          checked={isPublished}
+          onChange={(e) => setIsPublished(e.target.checked)}
+          className="h-5 w-5 rounded border-ink-700 bg-ink-900 text-emerald-500"
+        />
+        <label htmlFor="is_published" className="text-sm font-medium text-slate-200">
+          منشور (يظهر في الموقع)
+        </label>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 border-t border-ink-700 pt-4">
@@ -191,7 +176,7 @@ export default function ArticleForm(props: Props) {
             value={downloadUrl}
             onChange={(e) => setDownloadUrl(e.target.value)}
             placeholder="https://example.com/download"
-            className="input"
+            className="input-field"
           />
         </Field>
         <Field label="كود التحميل / كلمة السر" hint="يظهر بجانب رابط التحميل">
@@ -199,7 +184,7 @@ export default function ArticleForm(props: Props) {
             value={downloadCode}
             onChange={(e) => setDownloadCode(e.target.value)}
             placeholder="1234"
-            className="input"
+            className="input-field"
           />
         </Field>
       </div>
@@ -224,7 +209,7 @@ export default function ArticleForm(props: Props) {
       </div>
 
       <style jsx>{`
-        .input {
+        .input-field {
           width: 100%;
           border-radius: 0.75rem;
           border: 1px solid #334155;
@@ -234,7 +219,7 @@ export default function ArticleForm(props: Props) {
           font-size: 0.95rem;
           outline: none;
         }
-        .input:focus {
+        .input-field:focus {
           border-color: #10B981;
           box-shadow: 0 0 0 2px rgba(16,185,129,0.15);
         }

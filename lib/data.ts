@@ -3,7 +3,6 @@ import { createAdminClient } from "./supabase/admin";
 import type { Article, SiteSettings } from "./types";
 
 // Build-time safe client: uses service role (bypasses RLS, no cookies).
-// Used in generateStaticParams and any other build-time data fetch.
 const buildClient = () => createAdminClient();
 
 export async function getSettings(): Promise<SiteSettings | null> {
@@ -80,5 +79,4 @@ export async function getCategories(): Promise<string[]> {
   return Array.from(new Set((data ?? []).map((r: { category: string | null }) => r.category as string)));
 }
 
-// Re-export SSR client for places that need cookie-aware reads (e.g. admin pages).
 export const createServerClient = createClient;

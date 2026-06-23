@@ -60,7 +60,7 @@ export async function createArticleAction(input: ArticleInput) {
           content: input.content,
           category: input.category.trim() || "عام",
           cover_image: input.cover_image.trim(),
-          author: input.author?.trim() || "فريق تحرير بي آ اوت سبورتس",
+          author: input.author?.trim() || "فريق تحرير بي آوت سبورتس",
           is_published: input.is_published ?? true,
           download_url: input.download_url?.trim() || null,
           download_code: input.download_code?.trim() || null,
@@ -70,10 +70,15 @@ export async function createArticleAction(input: ArticleInput) {
       .single();
 
     if (error) {
+      console.error("createArticleAction error:", error);
+      // إذا استمر خطأ Schema Cache، فهذا يعني أن Vercel يحتاج لإعادة بناء
+      if (error.message.includes("schema cache")) {
+        return { ok: false as const, error: "خطأ في ذاكرة التخزين (Schema Cache). يرجى إعادة نشر الموقع في Vercel مع خيار 'Clear Cache'." };
+      }
       return { ok: false as const, error: error.message };
     }
+    
     revalidatePath("/");
-    revalidatePath(`/article/${slug}`);
     revalidatePath("/admin/articles");
     return { ok: true as const, id: data.id, slug };
   } catch (err) {
@@ -82,7 +87,7 @@ export async function createArticleAction(input: ArticleInput) {
   }
 }
 
-export async function updateArticleAction(id: string, input: ArticleInput) {
+export async function updateArticleAction(id: string | number, input: ArticleInput) {
   try {
     await assertAdmin();
     const supabase = createAdminClient();
@@ -100,16 +105,22 @@ export async function updateArticleAction(id: string, input: ArticleInput) {
         content: input.content,
         category: input.category.trim() || "عام",
         cover_image: input.cover_image.trim(),
-        author: input.author?.trim() || "فريق تحرير بي آ اوت سبورتس",
+        author: input.author?.trim() || "فريق تحرير بي آوت سبورتس",
         is_published: input.is_published ?? true,
         download_url: input.download_url?.trim() || null,
         download_code: input.download_code?.trim() || null,
       })
       .eq("id", id);
 
-    if (error) return { ok: false as const, error: error.message };
+    if (error) {
+      console.error("updateArticleAction error:", error);
+      if (error.message.includes("schema cache")) {
+        return { ok: false as const, error: "خطأ في ذاكرة التخزين (Schema Cache). يرجى إعادة نشر الموقع في Vercel مع خيار 'Clear Cache'." };
+      }
+      return { ok: false as const, error: error.message };
+    }
+    
     revalidatePath("/");
-    revalidatePath(`/article/${slug}`);
     revalidatePath("/admin/articles");
     return { ok: true as const, slug };
   } catch (err) {
@@ -118,7 +129,7 @@ export async function updateArticleAction(id: string, input: ArticleInput) {
   }
 }
 
-export async function deleteArticleAction(id: string) {
+export async function deleteArticleAction(id: string | number) {
   try {
     await assertAdmin();
     const supabase = createAdminClient();
@@ -143,21 +154,9 @@ export async function updateSettingsAction(input: SettingsInput) {
     const supabase = createAdminClient();
     if (!supabase) return { ok: false as const, error: "Failed to initialize admin client" };
 
-    // Update the single row in site_settings table
-    // The ID '00000000-0000-0000-0000-000000000001' is seeded in schema.sql
-    // Filter out undefined values to only update provided fields
-    const updateData: any = {};
-    if (input.logo_url !== undefined) updateData.logo_url = input.logo_url;
-    if (input.app_name !== undefined) updateData.app_name = input.app_name;
-    if (input.app_code !== undefined) updateData.app_code = input.app_code;
-    if (input.download_link !== undefined) updateData.download_link = input.download_link;
-    if (input.site_description !== undefined) updateData.site_description = input.site_description;
-    if (input.contact_email !== undefined) updateData.contact_email = input.contact_email;
-    if (input.banner_image !== undefined) updateData.banner_image = input.banner_image;
-
     const { error } = await supabase
       .from("site_settings")
-      .update(updateData)
+      .update(input)
       .eq("id", "00000000-0000-0000-0000-000000000001");
 
     if (error) {
@@ -174,9 +173,7 @@ export async function updateSettingsAction(input: SettingsInput) {
   }
 }
 
-// ---------- ANALYTICS ----------
-
-export async function incrementArticleViews(id: string) {
+export async function incrementArticleViews(id: string | number) {
   try {
     const supabase = createAdminClient();
     if (!supabase) return;
@@ -196,15 +193,16 @@ export async function incrementTotalVisits() {
     
     const { data } = await supabase
       .from("site_settings")
-      .select("value")
-      .eq("key", "total_visits")
-      .maybeSingle();
+      .select("total_visits")
+      .eq("id", "00000000-0000-0000-0000-000000000001")
+      .single();
 
-    const count = data ? parseInt(data.value || "0") : 0;
-    
-    await supabase
-      .from("site_settings")
-      .upsert({ key: "total_visits", value: String(count + 1) }, { onConflict: 'key' });
+    if (data) {
+      await supabase
+        .from("site_settings")
+        .update({ total_visits: (data.total_visits || 0) + 1 })
+        .eq("id", "00000000-0000-0000-0000-000000000001");
+    }
   } catch (err) {
     console.error("incrementTotalVisits error:", err);
   }
