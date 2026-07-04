@@ -51,8 +51,6 @@ export default function Footer({ settings }: { settings: SiteSettings | null }) 
           <h3 className="mb-3 text-sm font-bold text-white">المزيد</h3>
           <ul className="space-y-2 text-sm text-slate-300">
             <li><Link className="hover:text-emerald-400" href="/privacy">سياسة الخصوصية</Link></li>
-            <li><Link className="hover:text-emerald-400" href="/about">من نحن</Link></li>
-            <li><Link className="hover:text-emerald-400" href="/contact">اتصل بنا</Link></li>
           </ul>
         </div>
 
