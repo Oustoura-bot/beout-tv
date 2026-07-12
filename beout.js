@@ -4,12 +4,12 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import express from 'express';
-import xml2js from 'xml2js';
 
 // =================== الإعدادات ===================
 const BOT_TOKEN = '8642487828:AAHOMH6r914HJgPmb7tnB53d8LeW0OZ-LfA';
 const DATA_FILE = 'data.json';
-const PROXY_PORT = 3000; // منفذ لخادم البروكسي
+const SERVER_PORT = 3000; // المنفذ الذي سيعمل عليه خادم الـ Redirect
+const SERVER_URL = 'http://YOUR_SERVER_IP:3000'; // استبدل هذا برابط السيرفر الخاص بك (IP أو Domain)
 
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 const app = express();
@@ -46,6 +46,7 @@ function saveData() {
 // =================== دوال مساعدة ===================
 function fixDashUrl(url) {
   if (!url) return null;
+  // محاكاة طريقة "mouhatop@" لإضافة معرف فريد للرابط (اختياري)
   const match = url.match(/https:\/\/([^/]*?(?:video|scontent)[^/]*?\.fbcdn\.net)\//);
   if (match) {
     const domain = match[1];
@@ -135,57 +136,12 @@ async function streamThread(chatId, source, name) {
     active: true,
     source: source,
     dash_url: dashUrl,
-    proxy_url: `http://localhost:${PROXY_PORT}/live/${chatId}/${name}.mpd` // رابط البروكسي الثابت
+    // الرابط الثابت الذي سيتم إعطاؤه للمستخدم
+    fixed_url: `${SERVER_URL}/live/${chatId}/${encodeURIComponent(name)}.mpd`
   };
 
-  // تحديث رابط الـ DASH كل 3 ساعات (أقل من 4 ساعات لضمان التجديد قبل انتهاء الصلاحية)
-  const refreshInterval = setInterval(async () => {
-    if (!userStreams[chatId]?.[name]?.active) {
-      clearInterval(refreshInterval);
-      return;
-    }
-    try {
-      const infoRes = await axios.get(
-        `https://graph.facebook.com/v17.0/${liveId}`,
-        {
-          params: {
-            access_token: token,
-            fields: 'dash_preview_url'
-          }
-        }
-      );
-      const fresh = fixDashUrl(infoRes.data.dash_preview_url);
-      if (fresh) {
-        userStreams[chatId][name].dash_url = fresh;
-        console.log(`تم تحديث رابط DASH للقناة ${name}: ${fresh}`);
-      }
-    } catch (e) {
-      console.error(`خطأ في تحديث رابط DASH للقناة ${name}:`, e.message);
-    }
-  }, 3 * 60 * 60 * 1000); // 3 ساعات
-
-  setTimeout(async () => {
-    try {
-      const infoRes = await axios.get(
-        `https://graph.facebook.com/v17.0/${liveId}`,
-        {
-          params: {
-            access_token: token,
-            fields: 'dash_preview_url'
-          }
-        }
-      );
-      const fresh = fixDashUrl(infoRes.data.dash_preview_url);
-      if (fresh) {
-        if (userStreams[chatId]?.[name]) {
-          userStreams[chatId][name].dash_url = fresh;
-        }
-        bot.sendMessage(chatId, `🎥 ${name}\n👁️ DASH (رابط البروكسي):\n${userStreams[chatId][name].proxy_url}`);
-      }
-    } catch (e) {
-      // تجاهل الأخطاء
-    }
-  }, 20000);
+  // إرسال الرابط الثابت للمستخدم فوراً
+  bot.sendMessage(chatId, `🎥 تم تشغيل البث: **${name}**\n\n🔗 الرابط الثابت (يعمل للأبد):\n\`${userStreams[chatId][name].fixed_url}\``, { parse_mode: 'Markdown' });
 
   while (userStreams[chatId]?.[name]?.active) {
     let proc = userStreams[chatId][name].proc;
@@ -193,18 +149,11 @@ async function streamThread(chatId, source, name) {
       proc = launchFfmpeg(source, streamUrl);
       userStreams[chatId][name].proc = proc;
     }
-    if (proc.exitCode !== null) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      proc = launchFfmpeg(source, streamUrl);
-      userStreams[chatId][name].proc = proc;
-    }
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
   const proc = userStreams[chatId]?.[name]?.proc;
-  if (proc) {
-    proc.kill();
-  }
+  if (proc) proc.kill();
 }
 
 // =================== إيقاف بث ===================
@@ -220,16 +169,13 @@ async function stopStream(chatId, name) {
       `https://graph.facebook.com/v17.0/${info.live_id}`,
       { params: { access_token: info.token } }
     );
-  } catch (e) {
-    // تجاهل
-  }
+  } catch (e) {}
 
   delete userStreams[chatId][name];
 }
 
 // =================== أوامر البوت ===================
 
-// /addpage
 bot.onText(/^\/addpage (.+)/, (msg, match) => {
   const chatId = getChatId(msg);
   const parts = match[1].split(/\s+/);
@@ -244,7 +190,6 @@ bot.onText(/^\/addpage (.+)/, (msg, match) => {
   bot.sendMessage(chatId, `✅ تم إضافة الصفحة ${name} بنجاح.`);
 });
 
-// /usepage
 bot.onText(/^\/usepage (.+)/, (msg, match) => {
   const chatId = getChatId(msg);
   const name = match[1].trim();
@@ -256,7 +201,6 @@ bot.onText(/^\/usepage (.+)/, (msg, match) => {
   bot.sendMessage(chatId, `🎯 الصفحة النشطة الآن: ${name}`);
 });
 
-// /savem3u8
 bot.onText(/^\/savem3u8 (.+)/, (msg, match) => {
   const chatId = getChatId(msg);
   const parts = match[1].split(/\s+/);
@@ -271,22 +215,6 @@ bot.onText(/^\/savem3u8 (.+)/, (msg, match) => {
   bot.sendMessage(chatId, `💾 تم حفظ القناة: ${name}`);
 });
 
-// /m3u8list
-bot.onText(/^\/m3u8list$/, (msg) => {
-  const chatId = getChatId(msg);
-  const data = userM3u8[chatId];
-  if (!data || Object.keys(data).length === 0) {
-    bot.sendMessage(chatId, '❌ قائمة القنوات فارغة..');
-    return;
-  }
-  let txt = '📺 القنوات المحفوظة:\n';
-  for (const name of Object.keys(data)) {
-    txt += `- ${name}\n`;
-  }
-  bot.sendMessage(chatId, txt);
-});
-
-// /stopall
 bot.onText(/^\/stopall$/, async (msg) => {
   const chatId = getChatId(msg);
   const streams = userStreams[chatId];
@@ -298,94 +226,7 @@ bot.onText(/^\/stopall$/, async (msg) => {
     await stopStream(chatId, name);
     bot.sendMessage(chatId, `🛑 تم إيقاف: ${name}`);
   }
-  bot.sendMessage(chatId, '🛑 تم تنظيف الرام وإيقاف جميع العمليات..');
-});
-
-// /check
-bot.onText(/^\/check$/, async (msg) => {
-  const chatId = getChatId(msg);
-  const pages = userPages[chatId];
-  if (!pages || Object.keys(pages).length === 0) {
-    bot.sendMessage(chatId, '❌ لا توجد صفحات مسجلة لفحصها.');
-    return;
-  }
-  let report = '📋 تقرير فحص التوكنات:\n';
-  for (const [name, info] of Object.entries(pages)) {
-    try {
-      const res = await axios.get(
-        `https://graph.facebook.com/v17.0/${info.page_id}`,
-        { params: { access_token: info.token, fields: 'name' } }
-      );
-      if (res.status === 200) {
-        report += `✅ ${name}: هذا التوكن شغال\n`;
-      } else {
-        report += `❌ ${name}: هذا التوكن غير صالح\n`;
-      }
-    } catch {
-      report += `❌ ${name}: هذا التوكن غير صالح\n`;
-    }
-  }
-  bot.sendMessage(chatId, report);
-});
-
-// /testall
-bot.onText(/^\/testall$/, async (msg) => {
-  const chatId = getChatId(msg);
-  const streams = userStreams[chatId];
-  if (!streams || Object.keys(streams).length === 0) {
-    bot.sendMessage(chatId, '❌ لا توجد قنوات تبث حالياً لفحصها.');
-    return;
-  }
-  let report = '🧪 **فحص روابط DASH للبثوث النشطة:**\n\n';
-  for (const [name, info] of Object.entries(streams)) {
-    const dashUrl = info.dash_url;
-    if (!dashUrl) {
-      report += `⚪️ **${name}**: لا يوجد رابط DASH لهذا البث.\n`;
-      continue;
-    }
-    try {
-      const res = await axios.head(dashUrl, { timeout: 10000 });
-      if (res.status === 200) {
-        report += `✅ **${name}**: رابط DASH يعمل بنجاح.\n`;
-      } else {
-        report += `❌ **${name}**: رابط DASH لا يعمل (Error ${res.status}).\n`;
-      }
-    } catch {
-      report += `❌ **${name}**: رابط DASH متعطل (خطأ اتصال).\n`;
-    }
-  }
-  bot.sendMessage(chatId, report, { parse_mode: 'Markdown' });
-});
-
-// /testm3u8
-bot.onText(/^\/testm3u8$/, async (msg) => {
-  const chatId = getChatId(msg);
-  const channels = userM3u8[chatId];
-  if (!channels || Object.keys(channels).length === 0) {
-    bot.sendMessage(chatId, '❌ قائمة القنوات فارغة..');
-    return;
-  }
-  const statusMsg = await bot.sendMessage(chatId, '⏳ جاري فحص الروابط المحفوظة...');
-  let report = '🧪 تقرير فحص القنوات المحفوظة:\n';
-  for (const [name, url] of Object.entries(channels)) {
-    let linkType = 'URL';
-    if (url.toLowerCase().includes('.m3u8')) linkType = 'M3U8';
-    else if (url.toLowerCase().includes('.mpd')) linkType = 'MPD';
-
-    let status;
-    try {
-      const res = await axios.head(url, { timeout: 5000, maxRedirects: 5 });
-      if (res.status >= 200 && res.status < 400) {
-        status = 'شغال ✅';
-      } else {
-        status = `خطأ (${res.status}) ❌`;
-      }
-    } catch {
-      status = 'غير مستجيب ❌';
-    }
-    report += `- ${name} (${linkType}) -> ${status}\n`;
-  }
-  bot.editMessageText(report, { chat_id: chatId, message_id: statusMsg.message_id });
+  bot.sendMessage(chatId, '🛑 تم إيقاف جميع العمليات..');
 });
 
 // =================== استيراد ملف txt ===================
@@ -422,112 +263,71 @@ bot.on('document', async (msg) => {
   }
 });
 
-// =================== معالجة الرسائل النصية (تشغيل القنوات) ===================
+// =================== معالجة الرسائل النصية ===================
 bot.on('text', async (msg) => {
   const chatId = getChatId(msg);
   const text = msg.text;
-
   if (text.startsWith('/')) return;
-
   if (!activePage[chatId]) {
     bot.sendMessage(chatId, '⚠️ اختر صفحة أولاً باستخدام /usepage.');
     return;
   }
-
   const saved = userM3u8[chatId] || {};
   const names = text.split('\n').map(s => s.trim()).filter(s => s);
-  if (names.length === 0) return;
-
-  let started = 0;
-  let notFound = false;
-
   for (const name of names) {
-    if (!saved[name]) {
-      notFound = true;
-      continue;
+    if (saved[name] && !userStreams[chatId]?.[name]) {
+      streamThread(chatId, saved[name], name).catch(console.error);
     }
-    if (userStreams[chatId]?.[name]) {
-      bot.sendMessage(chatId, `⚠️ البث '${name}' قيد التشغيل بالفعل.`);
-      continue;
-    }
-    const source = saved[name];
-    streamThread(chatId, source, name).catch(err => {
-      console.error(`خطأ في بث ${name}:`, err);
-    });
-    started++;
-  }
-
-  if (started === 0 && notFound) {
-    bot.sendMessage(chatId, '❌ لم يتم العثور على اسم قناة مطابق.');
   }
 });
 
-// =================== Proxy Manifest Endpoint ===================
+// =================== Redirect Endpoint (السر) ===================
 app.get('/live/:chatId/:channelName.mpd', async (req, res) => {
   const { chatId, channelName } = req.params;
-  const streamInfo = userStreams[chatId]?.[channelName];
+  const decodedName = decodeURIComponent(channelName);
+  const streamInfo = userStreams[chatId]?.[decodedName];
 
-  if (!streamInfo || !streamInfo.dash_url) {
-    return res.status(404).send('MPD not found or stream not active.');
+  if (!streamInfo) {
+    return res.status(404).send('Stream not found.');
   }
 
   try {
-    // جلب الـ MPD الأصلي من فيسبوك
-    const response = await axios.get(streamInfo.dash_url, { responseType: 'text' });
-    let mpdContent = response.data;
-
-    // تعديل الـ MPD لتوجيه الروابط عبر البروكسي
-    const parser = new xml2js.Parser();
-    const builder = new xml2js.Builder();
-    let result = await parser.parseStringPromise(mpdContent);
-
-    // البحث عن جميع الـ BaseURL وتعديلها
-    if (result.MPD && result.MPD.Period && result.MPD.Period[0] && result.MPD.Period[0].AdaptationSet) {
-      result.MPD.Period[0].AdaptationSet.forEach(adaptationSet => {
-        if (adaptationSet.Representation) {
-          adaptationSet.Representation.forEach(representation => {
-            if (representation.BaseURL) {
-              representation.BaseURL.forEach(baseURL => {
-                // استبدال النطاق الأصلي برابط البروكسي
-                const originalUrl = baseURL._;
-                if (originalUrl) {
-                  const newBaseUrl = originalUrl.replace(/https:\/\/[^/]*?(?:video|scontent)[^/]*?\.fbcdn\.net/, `http://localhost:${PROXY_PORT}/proxy`);
-                  baseURL._ = newBaseUrl;
-                }
-              });
-            }
-          });
+    // جلب رابط DASH طازج من فيسبوك عند كل طلب للمشغل
+    const infoRes = await axios.get(
+      `https://graph.facebook.com/v17.0/${streamInfo.live_id}`,
+      {
+        params: {
+          access_token: streamInfo.token,
+          fields: 'dash_preview_url'
         }
-      });
+      }
+    );
+    
+    const freshDashUrl = fixDashUrl(infoRes.data.dash_preview_url);
+    
+    if (freshDashUrl) {
+      // تحديث الرابط في الذاكرة
+      userStreams[chatId][decodedName].dash_url = freshDashUrl;
+      // توجيه المشغل إلى الرابط الجديد فوراً
+      console.log(`Redirecting ${decodedName} to fresh URL...`);
+      res.redirect(freshDashUrl);
+    } else {
+      res.status(500).send('Could not refresh DASH URL.');
     }
-
-    mpdContent = builder.buildObject(result);
-
-    res.set('Content-Type', 'application/dash+xml');
-    res.send(mpdContent);
-
   } catch (error) {
-    console.error(`خطأ في جلب أو تعديل MPD للقناة ${channelName}:`, error.message);
-    res.status(500).send('Error processing MPD.');
+    console.error('Error refreshing DASH URL:', error.message);
+    // إذا فشل التحديث، نحاول التوجيه لآخر رابط ناجح لدينا
+    if (streamInfo.dash_url) {
+      res.redirect(streamInfo.dash_url);
+    } else {
+      res.status(500).send('Error refreshing DASH URL.');
+    }
   }
 });
 
-// =================== Proxy Media Segments Endpoint ===================
-app.get('/proxy/*', async (req, res) => {
-  const originalUrl = `https://${req.params[0]}`;
-  try {
-    const response = await axios.get(originalUrl, { responseType: 'stream' });
-    response.data.pipe(res);
-  } catch (error) {
-    console.error('خطأ في بروكسي جزء الميديا:', error.message);
-    res.status(500).send('Error proxying media segment.');
-  }
+// =================== تشغيل الخادم ===================
+app.listen(SERVER_PORT, () => {
+  console.log(`Redirect server running on port ${SERVER_PORT}`);
 });
 
-// =================== تشغيل خادم Express ===================
-app.listen(PROXY_PORT, () => {
-  console.log(`Proxy server listening on port ${PROXY_PORT}`);
-});
-
-// =================== تشغيل البوت ===================
-console.log('🎬 Bot BeOut is running ...');
+console.log('🎬 Bot BeOut (Redirect Version) is running ...');
