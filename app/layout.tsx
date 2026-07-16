@@ -45,6 +45,17 @@ export const metadata: Metadata = {
     title: "beout سبورتس — آخر أخبار الرياضة",
     description:
       "آخر أخبار كرة القدم، الانتقالات، ودوريات أوروبا والعرب لحظة بلحظة.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "beout سبورتس",
+      },
+    ],
+  },
+  alternates: {
+    canonical: "./",
   },
   twitter: {
     card: "summary_large_image",
