@@ -66,18 +66,29 @@ export async function createArticleAction(input: ArticleInput) {
           download_code: input.download_code?.trim() || null,
         },
       ])
-      .select("id")
+      .select("id, download_url, download_code")
       .single();
 
     if (error) {
       console.error("createArticleAction error:", error);
-      // إذا استمر خطأ Schema Cache، فهذا يعني أن Vercel يحتاج لإعادة بناء
-      if (error.message.includes("schema cache")) {
-        return { ok: false as const, error: "خطأ في ذاكرة التخزين (Schema Cache). يرجى إعادة نشر الموقع في Vercel مع خيار 'Clear Cache'." };
+      // إذا ظهر خطأ Schema Cache أو عمود مفقود، فهذا يعني أن أعمدة روابط التحميل
+      // غير موجودة في جدول المقالات ويجب تشغيل سكريبت إصلاح قاعدة البيانات
+      const msg = error.message.toLowerCase();
+      if (msg.includes("schema cache") || msg.includes("does not exist") || msg.includes("column")) {
+        return {
+          ok: false as const,
+          error:
+            "خطأ في قاعدة البيانات: أعمدة روابط التحميل غير موجودة في جدول المقالات. يرجى تشغيل السكريبت: supabase/add_download_columns.sql في Supabase SQL Editor.",
+        };
       }
       return { ok: false as const, error: error.message };
     }
-    
+
+    // تحقق من أن رابط التحميل حُفظ فعليًا في قاعدة البيانات
+    if (input.download_url?.trim() && !data.download_url) {
+      console.error("createArticleAction: download_url was saved but not returned by DB. Columns may be missing in the articles table.");
+    }
+
     revalidatePath("/");
     revalidatePath("/admin/articles");
     return { ok: true as const, id: data.id, slug };
@@ -114,14 +125,20 @@ export async function updateArticleAction(id: string | number, input: ArticleInp
 
     if (error) {
       console.error("updateArticleAction error:", error);
-      if (error.message.includes("schema cache")) {
-        return { ok: false as const, error: "خطأ في ذاكرة التخزين (Schema Cache). يرجى إعادة نشر الموقع في Vercel مع خيار 'Clear Cache'." };
+      const msg = error.message.toLowerCase();
+      if (msg.includes("schema cache") || msg.includes("does not exist") || msg.includes("column")) {
+        return {
+          ok: false as const,
+          error:
+            "خطأ في قاعدة البيانات: أعمدة روابط التحميل غير موجودة في جدول المقالات. يرجى تشغيل السكريبت: supabase/add_download_columns.sql في Supabase SQL Editor.",
+        };
       }
       return { ok: false as const, error: error.message };
     }
     
     revalidatePath("/");
     revalidatePath("/admin/articles");
+    revalidatePath(`/article/${slug}`, "page");
     return { ok: true as const, slug };
   } catch (err) {
     const message = err instanceof Error ? err.message : "An unexpected error occurred";

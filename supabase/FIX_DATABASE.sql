@@ -20,6 +20,9 @@ BEGIN
     END IF;
 END $$;
 
+-- 2b. Add article download-link columns (missing from original schema)
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS download_url  text;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS download_code text;
 -- 3. DISABLE BROKEN TRIGGERS
 -- The error "function net.http_post does not exist" indicates a broken webhook trigger.
 -- We will disable all triggers on articles table to allow saving.
@@ -49,3 +52,6 @@ ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS total_visits integer D
 
 -- 5. Force Schema Cache Reload
 NOTIFY pgrst, 'reload schema';
+-- =====================================================================
+-- NOTE: the download columns were extracted into their own dedicated
+-- script: supabase/add_download_columns.sql — run it if this file fails.
