@@ -134,16 +134,18 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <Link 
-              href={article.download_url} 
+            <a
+              href={article.download_url}
+              download
               target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-3 rounded-xl bg-emerald-600 px-8 py-4 font-bold text-white transition hover:bg-emerald-500 hover:shadow-glow"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               اضغط هنا للتحميل
-            </Link>
+            </a>
           </div>
         </section>
       )}
